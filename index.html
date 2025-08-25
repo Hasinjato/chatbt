@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatisation de publication Facebook</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1877f2;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dddfe2;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #166fe5;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+        .step {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dddfe2;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Automatisation de publication Facebook</h1>
+        
+        <div class="step">
+            <h2>Configuration requise</h2>
+            <p>Avant d'utiliser cet outil, assurez-vous d'avoir:</p>
+            <ul>
+                <li>Un jeton d'accès avec les permissions <code>pages_manage_posts</code> et <code>pages_read_engagement</code></li>
+                <li>L'ID de votre page Facebook</li>
+                <li>Une URL vers un fichier JSON valide contenant vos publications</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>Configuration</h2>
+            <div class="form-group">
+                <label for="accessToken">Jeton d'accès (Access Token)</label>
+                <input type="text" id="accessToken" placeholder="Entrez votre jeton d'accès">
+            </div>
+            <div class="form-group">
+                <label for="pageId">ID de la Page Facebook</label>
+                <input type="text" id="pageId" placeholder="Entrez l'ID de votre page">
+            </div>
+            <div class="form-group">
+                <label for="jsonUrl">URL du fichier JSON</label>
+                <input type="text" id="jsonUrl" placeholder="https://exemple.com/publications.json">
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Tester la publication</h2>
+            <p>Cliquez sur le bouton ci-dessous pour tester la publication immédiate:</p>
+            <button id="testButton">Tester la publication</button>
+            <div id="status" class="status"></div>
+        </div>
+
+        <div class="step">
+            <h2>Automatisation quotidienne</h2>
+            <p>Pour une automatisation quotidienne, vous devrez configurer un serveur ou utiliser un service comme:</p>
+            <ul>
+                <li>Google Apps Script (gratuit)</li>
+                <li>Un serveur Node.js avec agenda/cron</li>
+                <li>Services cloud comme AWS Lambda, Google Cloud Functions, etc.</li>
+                <li>Services d'automatisation comme Zapier ou IFTTT (version payante)</li>
+            </ul>
+            <p>Le code JavaScript fourni ci-dessous peut être adapté pour ces services.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('testButton').addEventListener('click', async function() {
+            const accessToken = document.getElementById('accessToken').value;
+            const pageId = document.getElementById('pageId').value;
+            const jsonUrl = document.getElementById('jsonUrl').value;
+            const statusDiv = document.getElementById('status');
+            
+            // Validation des champs
+            if (!accessToken || !pageId || !jsonUrl) {
+                showStatus('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            showStatus('Tentative de publication en cours...', 'info');
+            
+            try {
+                // Récupération des données JSON
+                const response = await fetch(jsonUrl);
+                if (!response.ok) {
+                    throw new Error(`Erreur lors du chargement du JSON: ${response.status}`);
+                }
+                
+                const posts = await response.json();
+                
+                // Vérification que le JSON contient des publications
+                if (!Array.isArray(posts) || posts.length === 0) {
+                    throw new Error('Le fichier JSON ne contient aucune publication valide');
+                }
+                
+                // Publication du premier message (pour le test)
+                const postResult = await publishToFacebook(accessToken, pageId, posts[0]);
+                
+                if (postResult.id) {
+                    showStatus(`Publication réussie! ID: ${postResult.id}`, 'success');
+                } else {
+                    showStatus('Erreur lors de la publication: ' + JSON.stringify(postResult), 'error');
+                }
+            } catch (error) {
+                showStatus('Erreur: ' + error.message, 'error');
+                console.error(error);
+            }
+        });
+        
+        async function publishToFacebook(accessToken, pageId, post) {
+            // Construction de l'URL pour l'API Graph
+            const url = `https://graph.facebook.com/v19.0/${pageId}/feed?access_token=${accessToken}`;
+            
+            // Préparation des données de publication
+            const formData = new FormData();
+            formData.append('message', post.message);
+            
+            // Ajout optionnel d'une image si présente dans le JSON
+            if (post.image_url) {
+                formData.append('url', post.image_url);
+            }
+            
+            // Envoi de la requête à l'API Facebook
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            
+            return await response.json();
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
