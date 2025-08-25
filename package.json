@@ -1,0 +1,26 @@
+{
+  "name": "chatbt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "node-cron": "^4.2.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\", && exit 1",
+    "build": "npm build",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hasinjato/chatbt.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hasinjato/chatbt/issues"
+  },
+  "homepage": "https://github.com/hasinjato/chatbt#readme"
+}
