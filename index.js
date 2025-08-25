@@ -2,9 +2,9 @@ const cron = require('node-cron');
 const fetch = require('node-fetch');
 
 // Configuration
-const ACCESS_TOKEN = 'votre_jeton_acces';
-const PAGE_ID = 'votre_id_page';
-const JSON_URL = 'https://exemple.com/votre-fichier.json';
+const ACCESS_TOKEN = 'EAAedilgaf3gBPVdGSyNyTEoakezZA9tT5WGb8vZCvZBj0TXnh32ZCtKu9UgC8qRjnKs3XUVppgxeHbSAoPFC3oPO2oN1lQWkvs5CpQb9mtcNj5BZCoY7uAktxVipSqfuaFXBrzbqBksXBXB1dQQWaGyOEchoxJmMygJhlTbeapAsaPwBHpG42iU7HGdkCancuuZB1MGJGHVk3Chd52kwZDZD';
+const PAGE_ID = '746290111906895';
+const JSON_URL = 'https://github.com/Hasinjato/chatbt/blob/main/my.json';
 
 // Tâche planifiée pour s'exécuter tous les jours à 9h
 cron.schedule('0 9 * * *', async () => {
