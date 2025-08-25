@@ -43,8 +43,7 @@ app.listen(PORT, () => {
 });
 
 // Tâche planifiée pour s'exécuter tous les jours à 9h
-//cron.schedule('0 9 * * *', async () => {
-cron.schedule('25 13 * * *', async () => {
+cron.schedule('0 9 * * *', async () => {
   console.log('Exécution de la publication quotidienne');
   
   try {
