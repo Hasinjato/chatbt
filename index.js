@@ -1,11 +1,46 @@
 import cron from 'node-cron';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
+import express from 'express';
 
 // Configuration
 const ACCESS_TOKEN = 'EAAedilgaf3gBPVdGSyNyTEoakezZA9tT5WGb8vZCvZBj0TXnh32ZCtKu9UgC8qRjnKs3XUVppgxeHbSAoPFC3oPO2oN1lQWkvs5CpQb9mtcNj5BZCoY7uAktxVipSqfuaFXBrzbqBksXBXB1dQQWaGyOEchoxJmMygJhlTbeapAsaPwBHpG42iU7HGdkCancuuZB1MGJGHVk3Chd52kwZDZD';
 const PAGE_ID = '746290111906895';
 const JSON_URL = 'https://github.com/Hasinjato/chatbt/blob/main/my.json';
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+
+// Middleware basique
+app.use(express.json());
+
+// Route health check
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    service: 'Facebook Auto-Poster',
+    schedule: 'Daily at 9:00 AM',
+    github: 'https://github.com/Hasinj/chatbt'
+  });
+});
+
+
+// Route pour forcer une publication manuellement
+app.post('/publish-now', async (req, res) => {
+  try {
+    const result = await publishScheduledPost();
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Démarrer le serveur
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log('Facebook Auto-Poster service started...');
+});
 
 // Tâche planifiée pour s'exécuter tous les jours à 9h
 cron.schedule('0 9 * * *', async () => {
